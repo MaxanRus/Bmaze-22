@@ -18,8 +18,7 @@ std::vector<Player>& Event::GetPlayers(GameMap& map) {
 MoveCurrentPlayer::MoveCurrentPlayer(Direction direction) : direction_(direction) {}
 
 ListEvents MoveCurrentPlayer::Apply(GameController& game_controller, size_t& number_player) {
-  auto map = game_controller.GetMap();
-  std::cout << number_player << std::endl;
+  auto& map = game_controller.GetMap();
   std::list<std::unique_ptr<Event>> result; 
   Cell& position = GetPlayers(map)[number_player].position;
   if (map.GetWall(position, direction_)) {
@@ -58,7 +57,7 @@ std::string FailedAttempt::GetMe() {
 PlayerBuildWall::PlayerBuildWall(Direction direction) : direction_(direction) {}
 
 ListEvents PlayerBuildWall::Apply(GameController& game_controller, size_t& number_player) {
-  auto map = game_controller.GetMap();
+  auto& map = game_controller.GetMap();
   ListEvents result; 
   Cell& position = GetPlayers(map)[number_player].position;
   map.GetWall(position, direction_) = true;
@@ -81,17 +80,21 @@ std::string SomethingResult::GetMe() {
 }
 
 ListEvents PlayerTriesRaiseItems::Apply(GameController& game_controller, size_t& number_player) {
-  auto map = game_controller.GetMap();
+  auto& map = game_controller.GetMap();
   ListEvents result; 
   Player& player = GetPlayers(map)[number_player];
   Cell& position = player.position;
-  if (auto treasure = map.RaiseTreasure(position)) {
+  if (auto treasures = map.RaiseTreasure(position); !treasures.empty()) {
     if (player.treasure) {      
       game_controller.SetGameControllerState(GameControllerState::WaitingDecisionsRaiseTreasure);
       // TODO
     } else {
-      player.treasure = treasure;
-      result.push_back(std::make_unique<PlayerRaiseTreasure>(*treasure));
+      if (treasures.size() == 1) {
+        player.treasure = treasures[0];
+        result.push_back(std::make_unique<PlayerRaiseTreasure>(treasures[0]));
+      } else {
+        // TODO
+      }
     }
   }
   return result;

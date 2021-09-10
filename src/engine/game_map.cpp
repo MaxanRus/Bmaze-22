@@ -44,6 +44,14 @@ bool GameMap::GetWall(const Cell& cell, Direction direction) const {
   return const_cast<GameMap&>(*this).GetWall(cell, direction);
 }
 
+std::vector<Player>& GameMap::GetPlayers() {
+  return players_;
+}
+
+const std::vector<Player>& GameMap::GetPlayers() const {
+  return players_;
+}
+
 size_t GameMap::GetCountPlayers() const {
   return players_.size();
 }
@@ -52,16 +60,18 @@ void GameMap::PutTreasure(const Treasure& treasure) {
   treasures_.push_back(treasure);
 }
 
-std::optional<size_t> GameMap::RaiseTreasure(const Cell& cell) {
-  for (auto& i: treasures_) {
-    if (i.position == cell) {
-      auto result = i;
-      std::swap(i, *treasures_.rbegin());
+std::vector<size_t> GameMap::RaiseTreasure(const Cell& cell) {
+  std::vector<size_t> result;
+  for (auto it = treasures_.begin(); it != treasures_.end();) {
+    if (it->position == cell) {
+      result.push_back(it->number);
+      std::swap(*it, *treasures_.rbegin());
       treasures_.pop_back();
-      return i.number;
+    } else {
+      it++;
     }
   }
-  return std::nullopt;
+  return result;
 }
 }
 

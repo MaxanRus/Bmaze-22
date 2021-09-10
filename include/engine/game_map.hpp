@@ -6,7 +6,6 @@ class GameMap;
 
 #include <map>
 #include <vector>
-#include <optional>
 
 #include "utils/cell.hpp"
 #include "engine/player.hpp"
@@ -43,8 +42,10 @@ class GameMap {
   bool GetHorizontalWall(const utils::Cell&) const;
   bool GetWall(const utils::Cell&, utils::Direction) const;
   size_t GetCountPlayers() const;
+  std::vector<Player>& GetPlayers();
+  const std::vector<Player>& GetPlayers() const;
   void PutTreasure(const Treasure&);
-  std::optional<size_t> RaiseTreasure(const utils::Cell&);
+  std::vector<size_t> RaiseTreasure(const utils::Cell&);
  private:
   size_t width_, height_;
   std::map<utils::Cell, bool> vertical_walls_, horizontal_walls_;
