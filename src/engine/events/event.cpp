@@ -15,6 +15,12 @@ std::vector<Player>& Event::GetPlayers(GameMap& map) {
   return map.players_;
 }
 
+void ApplyAndPushBack(GameController& game_controller, size_t& number_player,
+                      std::unique_ptr<Event> event, ListEvents& list) {
+  list.push_back(std::move(event));
+  list.splice(list.end(), list.back()->Apply(game_controller, number_player));
+}
+
 MoveCurrentPlayer::MoveCurrentPlayer(Direction direction) : direction_(direction) {}
 
 ListEvents MoveCurrentPlayer::Apply(GameController& game_controller, size_t& number_player) {
@@ -27,8 +33,7 @@ ListEvents MoveCurrentPlayer::Apply(GameController& game_controller, size_t& num
     position += direction_;
     result.push_back(std::make_unique<SuccessfulAttempt>());
   }
-  result.push_back(std::make_unique<PlayerTriesRaiseItems>());
-  result.splice(result.end(), result.back()->Apply(game_controller, number_player));
+  ApplyAndPushBack(game_controller, number_player, std::make_unique<PlayerTriesRaiseItems>(), result);
   ++number_player;
   number_player %= GetPlayers(map).size();
   return result;
@@ -61,7 +66,7 @@ ListEvents PlayerBuildWall::Apply(GameController& game_controller, size_t& numbe
   ListEvents result; 
   Cell& position = GetPlayers(map)[number_player].position;
   map.GetWall(position, direction_) = true;
-  result.push_back(std::make_unique<SomethingResult>());
+  ApplyAndPushBack(game_controller, number_player, std::make_unique<SomethingResult>(), result);
   ++number_player;
   number_player %= GetPlayers(map).size();
   return result;
@@ -90,8 +95,7 @@ ListEvents PlayerTriesRaiseItems::Apply(GameController& game_controller, size_t&
       // TODO
     } else {
       if (treasures.size() == 1) {
-        player.treasure = treasures[0];
-        result.push_back(std::make_unique<PlayerRaiseTreasure>(treasures[0]));
+        ApplyAndPushBack(game_controller, number_player, std::make_unique<PlayerRaiseTreasure>(treasures[0]), result);
       } else {
         // TODO
       }
@@ -107,6 +111,9 @@ std::string PlayerTriesRaiseItems::GetMe() {
 PlayerRaiseTreasure::PlayerRaiseTreasure(size_t treasure) : treasure(treasure) {}
 
 ListEvents PlayerRaiseTreasure::Apply(GameController& game_controller, size_t& number_player) {
+  auto& map = game_controller.GetMap();
+  Player& player = GetPlayers(map)[number_player];
+  player.treasure = treasure;
   return {};
 }
 
