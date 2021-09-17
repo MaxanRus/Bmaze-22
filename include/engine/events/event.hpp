@@ -9,12 +9,20 @@
 namespace engine {
 class GameController;
 namespace events {
+
+enum class EventType {
+  MoveCurrentPlayer, SuccessfulAttempt, FailedAttempt, PlayerBuildWall, SomethingResult,
+  PlayerTriesRaiseItems, PlayerRaiseTreasure, PlayerTriesRaiseExcessTreasure, None
+};
+
 class Event;
 
 using ListEvents = std::list<std::unique_ptr<Event>>;
 
 class Event {
  public:
+  const EventType event_type = EventType::None;
+  Event(EventType);
   virtual ListEvents Apply(GameController&, size_t& number_player) = 0;
   virtual std::string GetMe() = 0;
  protected:
@@ -33,14 +41,14 @@ class MoveCurrentPlayer : public Event {
 
 class SuccessfulAttempt : public Event {
  public:
-  SuccessfulAttempt() = default;
+  SuccessfulAttempt();
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
 };
 
 class FailedAttempt : public Event {
  public:
-  FailedAttempt() = default;
+  FailedAttempt();
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
 };
@@ -56,13 +64,14 @@ class PlayerBuildWall : public Event {
 
 class SomethingResult : public Event {
  public:
-  SomethingResult() = default;
+  SomethingResult();
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
 };
 
 class PlayerTriesRaiseItems : public Event {
  public:
+  PlayerTriesRaiseItems();
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
 };

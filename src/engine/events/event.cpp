@@ -21,7 +21,10 @@ void ApplyAndPushBack(GameController& game_controller, size_t& number_player,
   list.splice(list.end(), list.back()->Apply(game_controller, number_player));
 }
 
-MoveCurrentPlayer::MoveCurrentPlayer(Direction direction) : direction_(direction) {}
+Event::Event(EventType event) : event_type(event) {}
+
+MoveCurrentPlayer::MoveCurrentPlayer(Direction direction) : Event(EventType::MoveCurrentPlayer),
+    direction_(direction) {}
 
 ListEvents MoveCurrentPlayer::Apply(GameController& game_controller, size_t& number_player) {
   auto& map = game_controller.GetMap();
@@ -43,6 +46,8 @@ std::string MoveCurrentPlayer::GetMe() {
   return std::string("move player ") + std::to_string(direction_);
 }
 
+SuccessfulAttempt::SuccessfulAttempt() : Event(EventType::SuccessfulAttempt) {}
+
 ListEvents SuccessfulAttempt::Apply(GameController& game_controller, size_t& number_player) {
   return {};
 }
@@ -50,6 +55,8 @@ ListEvents SuccessfulAttempt::Apply(GameController& game_controller, size_t& num
 std::string SuccessfulAttempt::GetMe() {
   return std::string("successful attempt");
 }
+
+FailedAttempt::FailedAttempt() : Event(EventType::FailedAttempt) {}
 
 ListEvents FailedAttempt::Apply(GameController& game_controller, size_t& number_player) {
   return {};
@@ -59,7 +66,7 @@ std::string FailedAttempt::GetMe() {
   return std::string("failed attempt");
 }
 
-PlayerBuildWall::PlayerBuildWall(Direction direction) : direction_(direction) {}
+PlayerBuildWall::PlayerBuildWall(Direction direction) : Event(EventType::PlayerBuildWall), direction_(direction) {}
 
 ListEvents PlayerBuildWall::Apply(GameController& game_controller, size_t& number_player) {
   auto& map = game_controller.GetMap();
@@ -76,6 +83,8 @@ std::string PlayerBuildWall::GetMe() {
   return std::string("build wall ") + std::to_string(direction_);
 }
 
+SomethingResult::SomethingResult() : Event(EventType::SomethingResult) {}
+
 ListEvents SomethingResult::Apply(GameController& game_controller, size_t& number_player) {
   return {};
 }
@@ -83,6 +92,8 @@ ListEvents SomethingResult::Apply(GameController& game_controller, size_t& numbe
 std::string SomethingResult::GetMe() {
   return std::string("something result");
 }
+
+PlayerTriesRaiseItems::PlayerTriesRaiseItems() : Event(EventType::PlayerTriesRaiseItems) {}
 
 ListEvents PlayerTriesRaiseItems::Apply(GameController& game_controller, size_t& number_player) {
   auto& map = game_controller.GetMap();
@@ -108,7 +119,7 @@ std::string PlayerTriesRaiseItems::GetMe() {
   return std::string("player tries raise item");
 }
 
-PlayerRaiseTreasure::PlayerRaiseTreasure(size_t treasure) : treasure(treasure) {}
+PlayerRaiseTreasure::PlayerRaiseTreasure(size_t treasure) : Event(EventType::PlayerRaiseTreasure), treasure(treasure) {}
 
 ListEvents PlayerRaiseTreasure::Apply(GameController& game_controller, size_t& number_player) {
   auto& map = game_controller.GetMap();
@@ -122,7 +133,7 @@ std::string PlayerRaiseTreasure::GetMe() {
 }
 
 PlayerTriesRaiseExcessTreasure::PlayerTriesRaiseExcessTreasure(size_t treasure) :
-    treasure(treasure) {}
+    Event(EventType::PlayerTriesRaiseExcessTreasure), treasure(treasure) {}
 
 ListEvents PlayerTriesRaiseExcessTreasure::Apply(GameController& game_controller, size_t& number_player) {
   return {};
