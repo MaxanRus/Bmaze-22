@@ -25,6 +25,7 @@ int main() {
     char type;
     std::cin >> type;
 
+    engine::events::ListEvents list_events;
     if (type == 'm') {
       char direction;
       std::cin >> direction;
@@ -34,7 +35,7 @@ int main() {
       else if (direction == 'u') dir = Direction::UP;
       else if (direction == 'r') dir = Direction::RIGHT;
       else dir = Direction::DOWN;
-      auto list_events = gc.Step(std::make_unique<MoveCurrentPlayer>(dir));
+      list_events = gc.Step(std::make_unique<MoveCurrentPlayer>(dir));
       print(list_events);
     } else if (type == 'b') {
       char direction;
@@ -45,7 +46,15 @@ int main() {
       else if (direction == 'u') dir = Direction::UP;
       else if (direction == 'r') dir = Direction::RIGHT;
       else dir = Direction::DOWN;
-      print(gc.Step(std::make_unique<PlayerBuildWall>(dir)));
+      list_events = gc.Step(std::make_unique<PlayerBuildWall>(dir));
+      print(list_events);
+    }
+
+    for (auto& i: list_events) {
+      if (i->event_type == engine::events::EventType::PlayerTriesRaiseExcessTreasure) {
+        auto& event = dynamic_cast<engine::events::PlayerTriesRaiseExcessTreasure&>(*i.get());
+        std::cout << "You must to change treasure(print number) or 0 for to opt out";
+      }
     }
 
     std::cout << std::to_string(gc.GetMap()) << std::endl;

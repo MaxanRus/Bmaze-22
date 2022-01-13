@@ -89,7 +89,7 @@ class PlayerTriesRaiseExcessTreasure : public Event {
   PlayerTriesRaiseExcessTreasure(size_t treasure);
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
-  size_t treasure;
+  std::vector<size_t> treasure;
 };
 }
 }

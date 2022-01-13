@@ -140,7 +140,11 @@ ListEvents PlayerTriesRaiseExcessTreasure::Apply(GameController& game_controller
 }
 
 std::string PlayerTriesRaiseExcessTreasure::GetMe() {
-  return "player raise treasure " + std::to_string(treasure);
+  std::string result = "player raise treasure ";
+  for (auto i: treasure) {
+    result += std::to_string(i) + " ";
+  }
+  return result;
 }
 }
 }
