@@ -39,14 +39,14 @@ GameMap MapGenerator::operator()() {
     int y = random_generator_() % 2 == 0 ? 0 : height;
     result.GetHorizontalWall(Cell(number, y)) = false;
   } else {
-    int x = random_generator_() % 2 == 0 ? 0 : height;
-    result.GetHorizontalWall(Cell(x, number)) = false;
+    int x = random_generator_() % 2 == 0 ? 0 : width;
+    result.GetVerticalWall(Cell(x, number - width)) = false;
   }
 
   for (size_t i = 0; i <= count_players; ++i) {
     result.PutTreasure({Cell(random_generator_() % width, random_generator_() % height), i});
   }
-  
+
   return result;
 }
 
