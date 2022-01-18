@@ -1,8 +1,9 @@
 #pragma once
 
-#include <network/lobby.hpp>
 #include <memory>
+#include <network/lobby.hpp>
 #include <string>
+#include <vector>
 
 namespace network {
 namespace events {
@@ -34,12 +35,13 @@ struct StartGame : public Event {
 };
 
 struct GameStep : public Event {
-  GameStep(std::unique_ptr<engine::events::Event>&&, engine::events::ListEvents&);
+  GameStep(std::unique_ptr<engine::events::Event>&&,
+           engine::events::ListEvents&);
   void Apply(std::shared_ptr<Session>) override;
+
  private:
   std::unique_ptr<engine::events::Event> event_;
   engine::events::ListEvents& list_events_;
 };
-}
-}
-
+}  // namespace events
+}  // namespace network

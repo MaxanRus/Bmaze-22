@@ -3,17 +3,21 @@
 
 #include "engine/game_controller.hpp"
 #include "engine/map_generator.hpp"
-
 #include "network/acceptor.hpp"
 
 void StartServer() {
   using namespace boost::asio;
   using namespace network;
+  std::cout << "Server start" << std::endl;
+  auto waiting_lobby = std::make_shared<WaitingLobby>();
+
   io_service io_service;
   ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 7777);
-  std::cout << "Server start" << std::endl;
+  Acceptor acceptor(io_service, ep, waiting_lobby);
 
-  Acceptor acceptor(io_service, ep, std::make_shared<WaitingLobby>());
+  ip::tcp::endpoint wep(ip::address::from_string("127.0.0.1"), 8888);
+  WebAcceptor web_acceptor(io_service, wep, waiting_lobby);
+
   io_service.run();
 }
 
@@ -27,11 +31,11 @@ int main() {
     std::thread server(StartServer);
 
     size_t seed = time(0);
-    std::cout << "current seed: " << seed << std::endl; 
+    std::cout << "current seed: " << seed << std::endl;
     GameController gc(MapGenerator(1, 5, 5, seed)());
 
     auto print = [](const auto& lst) {
-      for (auto& i: lst) {
+      for (auto& i : lst) {
         std::cout << i->GetMe() << ", ";
       }
       std::cout << std::endl;
@@ -55,10 +59,14 @@ int main() {
         }
 
         Direction dir;
-        if (direction == 'l') dir = Direction::LEFT;
-        else if (direction == 'u') dir = Direction::UP;
-        else if (direction == 'r') dir = Direction::RIGHT;
-        else dir = Direction::DOWN;
+        if (direction == 'l')
+          dir = Direction::LEFT;
+        else if (direction == 'u')
+          dir = Direction::UP;
+        else if (direction == 'r')
+          dir = Direction::RIGHT;
+        else
+          dir = Direction::DOWN;
         list_events = gc.Step(std::make_unique<MoveCurrentPlayer>(dir));
         print(list_events);
       } else if (type == 'b') {
@@ -66,10 +74,14 @@ int main() {
         std::cin >> direction;
 
         Direction dir;
-        if (direction == 'l') dir = Direction::LEFT;
-        else if (direction == 'u') dir = Direction::UP;
-        else if (direction == 'r') dir = Direction::RIGHT;
-        else dir = Direction::DOWN;
+        if (direction == 'l')
+          dir = Direction::LEFT;
+        else if (direction == 'u')
+          dir = Direction::UP;
+        else if (direction == 'r')
+          dir = Direction::RIGHT;
+        else
+          dir = Direction::DOWN;
         list_events = gc.Step(std::make_unique<PlayerBuildWall>(dir));
         print(list_events);
       } else if (type == 'd') {
@@ -77,19 +89,20 @@ int main() {
         break;
       }
 
-      for (auto& i: list_events) {
-        if (i->event_type == engine::events::EventType::PlayerTriesRaiseExcessTreasure) {
-          auto& event = dynamic_cast<engine::events::PlayerTriesRaiseExcessTreasure&>(*i.get());
-          std::cout << "You must to change treasure(print number) or 0 for to opt out";
+      for (auto& i : list_events) {
+        if (i->event_type ==
+            engine::events::EventType::PlayerTriesRaiseExcessTreasure) {
+          auto& event =
+              dynamic_cast<engine::events::PlayerTriesRaiseExcessTreasure&>(
+                  *i.get());
+          std::cout << "You must to change treasure(print number) or 0 for to "
+                       "opt out";
         }
       }
 
       std::cout << std::to_string(gc.GetMap()) << std::endl;
     }
     server.detach();
-  }
-  catch(...) {
-
+  } catch (...) {
   }
 }
-

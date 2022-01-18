@@ -1,9 +1,7 @@
 namespace utils {
-enum class Direction {
-  UP, RIGHT, DOWN, LEFT
-};
+enum class Direction { UP, RIGHT, DOWN, LEFT };
 struct Cell;
-}
+}  // namespace utils
 
 #pragma once
 #include <iostream>
@@ -35,8 +33,8 @@ struct Cell {
   Cell operator-(const Cell& cell) const;
   Cell operator-(Direction direction) const;
 };
-}
+}  // namespace utils
 
 namespace std {
-  std::string to_string(utils::Direction);
+std::string to_string(utils::Direction);
 }

@@ -1,19 +1,18 @@
+#include "engine/events/event.hpp"
+
 #include <list>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "engine/events/event.hpp"
-#include "utils/cell.hpp"
 #include "engine/player.hpp"
+#include "utils/cell.hpp"
 
 using namespace utils;
 
 namespace engine {
 namespace events {
-std::vector<Player>& Event::GetPlayers(GameMap& map) {
-  return map.players_;
-}
+std::vector<Player>& Event::GetPlayers(GameMap& map) { return map.players_; }
 
 void ApplyAndPushBack(GameController& game_controller, size_t& number_player,
                       std::unique_ptr<Event> event, ListEvents& list) {
@@ -23,12 +22,13 @@ void ApplyAndPushBack(GameController& game_controller, size_t& number_player,
 
 Event::Event(EventType event) : event_type(event) {}
 
-MoveCurrentPlayer::MoveCurrentPlayer(Direction direction) : Event(EventType::MoveCurrentPlayer),
-    direction_(direction) {}
+MoveCurrentPlayer::MoveCurrentPlayer(Direction direction)
+    : Event(EventType::MoveCurrentPlayer), direction_(direction) {}
 
-ListEvents MoveCurrentPlayer::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents MoveCurrentPlayer::Apply(GameController& game_controller,
+                                    size_t& number_player) {
   auto& map = game_controller.GetMap();
-  std::list<std::unique_ptr<Event>> result; 
+  std::list<std::unique_ptr<Event>> result;
   Cell& position = GetPlayers(map)[number_player].position;
   if (map.GetWall(position, direction_)) {
     result.push_back(std::make_unique<FailedAttempt>());
@@ -36,7 +36,8 @@ ListEvents MoveCurrentPlayer::Apply(GameController& game_controller, size_t& num
     position += direction_;
     result.push_back(std::make_unique<SuccessfulAttempt>());
   }
-  ApplyAndPushBack(game_controller, number_player, std::make_unique<PlayerTriesRaiseItems>(), result);
+  ApplyAndPushBack(game_controller, number_player,
+                   std::make_unique<PlayerTriesRaiseItems>(), result);
   ++number_player;
   number_player %= GetPlayers(map).size();
   return result;
@@ -48,7 +49,8 @@ std::string MoveCurrentPlayer::GetMe() {
 
 SuccessfulAttempt::SuccessfulAttempt() : Event(EventType::SuccessfulAttempt) {}
 
-ListEvents SuccessfulAttempt::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents SuccessfulAttempt::Apply(GameController& game_controller,
+                                    size_t& number_player) {
   return {};
 }
 
@@ -58,22 +60,24 @@ std::string SuccessfulAttempt::GetMe() {
 
 FailedAttempt::FailedAttempt() : Event(EventType::FailedAttempt) {}
 
-ListEvents FailedAttempt::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents FailedAttempt::Apply(GameController& game_controller,
+                                size_t& number_player) {
   return {};
 }
 
-std::string FailedAttempt::GetMe() {
-  return std::string("failed attempt");
-}
+std::string FailedAttempt::GetMe() { return std::string("failed attempt"); }
 
-PlayerBuildWall::PlayerBuildWall(Direction direction) : Event(EventType::PlayerBuildWall), direction_(direction) {}
+PlayerBuildWall::PlayerBuildWall(Direction direction)
+    : Event(EventType::PlayerBuildWall), direction_(direction) {}
 
-ListEvents PlayerBuildWall::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents PlayerBuildWall::Apply(GameController& game_controller,
+                                  size_t& number_player) {
   auto& map = game_controller.GetMap();
-  ListEvents result; 
+  ListEvents result;
   Cell& position = GetPlayers(map)[number_player].position;
   map.GetWall(position, direction_) = true;
-  ApplyAndPushBack(game_controller, number_player, std::make_unique<SomethingResult>(), result);
+  ApplyAndPushBack(game_controller, number_player,
+                   std::make_unique<SomethingResult>(), result);
   ++number_player;
   number_player %= GetPlayers(map).size();
   return result;
@@ -85,28 +89,32 @@ std::string PlayerBuildWall::GetMe() {
 
 SomethingResult::SomethingResult() : Event(EventType::SomethingResult) {}
 
-ListEvents SomethingResult::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents SomethingResult::Apply(GameController& game_controller,
+                                  size_t& number_player) {
   return {};
 }
 
-std::string SomethingResult::GetMe() {
-  return std::string("something result");
-}
+std::string SomethingResult::GetMe() { return std::string("something result"); }
 
-PlayerTriesRaiseItems::PlayerTriesRaiseItems() : Event(EventType::PlayerTriesRaiseItems) {}
+PlayerTriesRaiseItems::PlayerTriesRaiseItems()
+    : Event(EventType::PlayerTriesRaiseItems) {}
 
-ListEvents PlayerTriesRaiseItems::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents PlayerTriesRaiseItems::Apply(GameController& game_controller,
+                                        size_t& number_player) {
   auto& map = game_controller.GetMap();
-  ListEvents result; 
+  ListEvents result;
   Player& player = GetPlayers(map)[number_player];
   Cell& position = player.position;
   if (auto treasures = map.RaiseTreasure(position); !treasures.empty()) {
-    if (player.treasure) {      
-      game_controller.SetGameControllerState(GameControllerState::WaitingDecisionsRaiseTreasure);
+    if (player.treasure) {
+      game_controller.SetGameControllerState(
+          GameControllerState::WaitingDecisionsRaiseTreasure);
       // TODO
     } else {
       if (treasures.size() == 1) {
-        ApplyAndPushBack(game_controller, number_player, std::make_unique<PlayerRaiseTreasure>(treasures[0]), result);
+        ApplyAndPushBack(game_controller, number_player,
+                         std::make_unique<PlayerRaiseTreasure>(treasures[0]),
+                         result);
       } else {
         // TODO
       }
@@ -119,9 +127,11 @@ std::string PlayerTriesRaiseItems::GetMe() {
   return std::string("player tries raise item");
 }
 
-PlayerRaiseTreasure::PlayerRaiseTreasure(size_t treasure) : Event(EventType::PlayerRaiseTreasure), treasure(treasure) {}
+PlayerRaiseTreasure::PlayerRaiseTreasure(size_t treasure)
+    : Event(EventType::PlayerRaiseTreasure), treasure(treasure) {}
 
-ListEvents PlayerRaiseTreasure::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents PlayerRaiseTreasure::Apply(GameController& game_controller,
+                                      size_t& number_player) {
   auto& map = game_controller.GetMap();
   Player& player = GetPlayers(map)[number_player];
   player.treasure = treasure;
@@ -132,20 +142,20 @@ std::string PlayerRaiseTreasure::GetMe() {
   return "player raise treasure " + std::to_string(treasure);
 }
 
-PlayerTriesRaiseExcessTreasure::PlayerTriesRaiseExcessTreasure(size_t treasure) :
-    Event(EventType::PlayerTriesRaiseExcessTreasure), treasure(treasure) {}
+PlayerTriesRaiseExcessTreasure::PlayerTriesRaiseExcessTreasure(size_t treasure)
+    : Event(EventType::PlayerTriesRaiseExcessTreasure), treasure(treasure) {}
 
-ListEvents PlayerTriesRaiseExcessTreasure::Apply(GameController& game_controller, size_t& number_player) {
+ListEvents PlayerTriesRaiseExcessTreasure::Apply(
+    GameController& game_controller, size_t& number_player) {
   return {};
 }
 
 std::string PlayerTriesRaiseExcessTreasure::GetMe() {
   std::string result = "player raise treasure ";
-  for (auto i: treasure) {
+  for (auto i : treasure) {
     result += std::to_string(i) + " ";
   }
   return result;
 }
-}
-}
-
+}  // namespace events
+}  // namespace engine

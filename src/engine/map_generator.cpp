@@ -4,8 +4,11 @@ using namespace utils;
 
 namespace engine {
 MapGenerator::MapGenerator(size_t count_players, size_t width, size_t height,
-                           size_t seed) : count_players(count_players),
-    width(width), height(height), random_generator_(seed) {}
+                           size_t seed)
+    : count_players(count_players),
+      width(width),
+      height(height),
+      random_generator_(seed) {}
 
 GameMap MapGenerator::operator()() {
   GameMap result(count_players, width, height);
@@ -32,7 +35,7 @@ GameMap MapGenerator::operator()() {
         result.GetWall(cell, direction) = false;
       else
         ++current_number_walls;
-    } 
+    }
   }
 
   if (size_t number = random_generator_() % (width + height); number < width) {
@@ -44,7 +47,8 @@ GameMap MapGenerator::operator()() {
   }
 
   for (size_t i = 0; i <= count_players; ++i) {
-    result.PutTreasure({Cell(random_generator_() % width, random_generator_() % height), i});
+    result.PutTreasure(
+        {Cell(random_generator_() % width, random_generator_() % height), i});
   }
 
   return result;
@@ -67,10 +71,11 @@ void MapGenerator::CheckConnectivityDFS(const GameMap& map,
                                         const Cell& cell) {
   static Cell d[] = {Cell(-1, 0), Cell(0, 1), Cell(1, 0), Cell(0, -1)};
   static Direction directions[] = {Direction::LEFT, Direction::DOWN,
-    Direction::RIGHT, Direction::UP};
+                                   Direction::RIGHT, Direction::UP};
   for (uint8_t i = 0; i < 4; ++i) {
     Cell next_cell = cell + d[i];
-    if (next_cell.x < 0 || next_cell.x >= width || next_cell.y < 0 || next_cell.y >= height)
+    if (next_cell.x < 0 || next_cell.x >= width || next_cell.y < 0 ||
+        next_cell.y >= height)
       continue;
     if (!used[next_cell.x][next_cell.y] && !map.GetWall(cell, directions[i])) {
       used[next_cell.x][next_cell.y] = true;
@@ -78,5 +83,4 @@ void MapGenerator::CheckConnectivityDFS(const GameMap& map,
     }
   }
 }
-}
-
+}  // namespace engine

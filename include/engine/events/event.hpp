@@ -2,21 +2,30 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "engine/game_controller.hpp"
+#include "engine/player.hpp"
 #include "utils/cell.hpp"
 
 namespace engine {
 class GameController;
+class GameMap;
 namespace events {
 
 enum class EventType {
-  MoveCurrentPlayer, SuccessfulAttempt, FailedAttempt, PlayerBuildWall, SomethingResult,
-  PlayerTriesRaiseItems, PlayerRaiseTreasure, PlayerTriesRaiseExcessTreasure, None
+  MoveCurrentPlayer,
+  SuccessfulAttempt,
+  FailedAttempt,
+  PlayerBuildWall,
+  SomethingResult,
+  PlayerTriesRaiseItems,
+  PlayerRaiseTreasure,
+  PlayerTriesRaiseExcessTreasure,
+  None
 };
 
 class Event;
-
 using ListEvents = std::list<std::unique_ptr<Event>>;
 
 class Event {
@@ -25,6 +34,7 @@ class Event {
   Event(EventType);
   virtual ListEvents Apply(GameController&, size_t& number_player) = 0;
   virtual std::string GetMe() = 0;
+
  protected:
   std::vector<Player>& GetPlayers(GameMap& map);
 };
@@ -35,6 +45,7 @@ class MoveCurrentPlayer : public Event {
   MoveCurrentPlayer(utils::Direction);
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
+
  private:
   utils::Direction direction_;
 };
@@ -58,6 +69,7 @@ class PlayerBuildWall : public Event {
   PlayerBuildWall(utils::Direction);
   ListEvents Apply(GameController&, size_t& number_player) override;
   std::string GetMe() override;
+
  private:
   utils::Direction direction_;
 };
@@ -91,6 +103,5 @@ class PlayerTriesRaiseExcessTreasure : public Event {
   std::string GetMe() override;
   std::vector<size_t> treasure;
 };
-}
-}
-
+}  // namespace events
+}  // namespace engine

@@ -1,12 +1,12 @@
-#include <exception>
-
 #include "engine/game_map.hpp"
+
+#include <exception>
 
 using namespace utils;
 
 namespace engine {
-GameMap::GameMap(size_t count_players, size_t width, size_t height) :
-    width_(width), height_(height) {
+GameMap::GameMap(size_t count_players, size_t width, size_t height)
+    : width_(width), height_(height) {
   players_.resize(count_players);
 }
 
@@ -29,7 +29,8 @@ bool& GameMap::GetWall(const Cell& cell, Direction direction) {
     case Direction::DOWN:
       return GetHorizontalWall(cell + Cell(0, 1));
   }
-  throw std::logic_error("GetWall in GameMap dosn't was able to choose direction");
+  throw std::logic_error(
+      "GetWall in GameMap dosn't was able to choose direction");
 }
 
 bool GameMap::GetVerticalWall(const Cell& cell) const {
@@ -44,17 +45,11 @@ bool GameMap::GetWall(const Cell& cell, Direction direction) const {
   return const_cast<GameMap&>(*this).GetWall(cell, direction);
 }
 
-std::vector<Player>& GameMap::GetPlayers() {
-  return players_;
-}
+std::vector<Player>& GameMap::GetPlayers() { return players_; }
 
-const std::vector<Player>& GameMap::GetPlayers() const {
-  return players_;
-}
+const std::vector<Player>& GameMap::GetPlayers() const { return players_; }
 
-size_t GameMap::GetCountPlayers() const {
-  return players_.size();
-}
+size_t GameMap::GetCountPlayers() const { return players_.size(); }
 
 void GameMap::PutTreasure(const Treasure& treasure) {
   treasures_.push_back(treasure);
@@ -73,7 +68,7 @@ std::vector<size_t> GameMap::RaiseTreasure(const Cell& cell) {
   }
   return result;
 }
-}
+}  // namespace engine
 
 namespace std {
 std::string to_string(const engine::GameMap& map) {
@@ -81,7 +76,7 @@ std::string to_string(const engine::GameMap& map) {
   std::string red_color = "\033[01;31m", clear_color = "\033[00m";
   int min_x = 0, max_x = map.width_ - 1, min_y = 0, max_y = map.height_ - 1;
 
-  for (const auto& player: map.players_) {
+  for (const auto& player : map.players_) {
     min_x = std::min(min_x, player.position.x);
     min_y = std::min(min_y, player.position.y);
     max_x = std::max(max_x, player.position.x);
@@ -120,12 +115,12 @@ std::string to_string(const engine::GameMap& map) {
         else
           result += " ";
       } else if (std::abs(i % 2) == 0) {
-        if (map.GetHorizontalWall(Cell((j - 1) / 2, i / 2))) 
+        if (map.GetHorizontalWall(Cell((j - 1) / 2, i / 2)))
           result += "═";
         else
           result += " ";
       } else if (std::abs(j % 2) == 0) {
-        if (map.GetVerticalWall(Cell(j / 2, (i - 1) / 2))) 
+        if (map.GetVerticalWall(Cell(j / 2, (i - 1) / 2)))
           result += "║";
         else
           result += " ";
@@ -137,7 +132,7 @@ std::string to_string(const engine::GameMap& map) {
           }
         }
         bool treasure = false;
-        for (const auto& t: map.treasures_) {
+        for (const auto& t : map.treasures_) {
           if (t.position == Cell((j - 1) / 2, (i - 1) / 2)) {
             treasure = true;
           }
@@ -154,5 +149,4 @@ std::string to_string(const engine::GameMap& map) {
   }
   return result;
 }
-}
-
+}  // namespace std

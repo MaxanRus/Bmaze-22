@@ -3,6 +3,8 @@
 using namespace utils;
 
 namespace engine {
-Player& Player::operator=(const Cell& cell) { position = cell; return *this; }
+Player& Player::operator=(const Cell& cell) {
+  position = cell;
+  return *this;
 }
-
+}  // namespace engine

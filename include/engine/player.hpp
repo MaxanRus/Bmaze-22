@@ -1,6 +1,7 @@
 #pragma once
-#include "utils/cell.hpp"
 #include <optional>
+
+#include "utils/cell.hpp"
 
 namespace engine {
 struct Player {
@@ -17,5 +18,4 @@ struct Player {
   utils::Cell position;
   std::optional<size_t> treasure = std::nullopt;
 };
-}
-
+}  // namespace engine
